@@ -2,38 +2,58 @@ package com.example.demo.user.service;
 
 import com.example.demo.common.domain.exception.CertificationCodeNotMatchedException;
 import com.example.demo.common.domain.exception.ResourceNotFoundException;
+import com.example.demo.mock.FakeMailSender;
+import com.example.demo.mock.FakeUserRepository;
+import com.example.demo.mock.TestClockHolder;
+import com.example.demo.mock.TestUuidHolder;
 import com.example.demo.user.domain.User;
 import com.example.demo.user.domain.UserCreate;
-import com.example.demo.user.domain.UserStatus;
 import com.example.demo.user.domain.UserUpdate;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-import org.springframework.test.context.jdbc.SqlGroup;
 
+import static com.example.demo.user.domain.UserStatus.ACTIVE;
+import static com.example.demo.user.domain.UserStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 
-@SpringBootTest
-@TestPropertySource("classpath:test-application.properties")
-@SqlGroup({
-        @Sql(value = "/sql/user-service-test-data.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD),
-        @Sql(value = "/sql/delete-all-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD),
-})
 class UserServiceTest {
 
-    @Autowired
     private UserService userService;
-    @MockBean
-    private JavaMailSender mailSender;
+
+    @BeforeEach
+    void init() {
+        User user = User.builder()
+                .id(1L)
+                .email("hyunlee.289@gmail.com")
+                .nickname("hyun")
+                .address("deokso")
+                .status(ACTIVE)
+                .certificationCode("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab")
+                .lastLoginAt(1678530673958L)
+                .build();
+
+        User user2 = User.builder()
+                .id(2L)
+                .email("hyunlee.289@gmail.com")
+                .nickname("hyun")
+                .address("deokso")
+                .status(PENDING)
+                .certificationCode("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab")
+                .lastLoginAt(1678530673958L)
+                .build();
+
+        FakeUserRepository fakeUserRepository = new FakeUserRepository();
+        fakeUserRepository.save(user);
+        fakeUserRepository.save(user2);
+
+        this.userService = UserService.builder()
+                .userRepository(fakeUserRepository)
+                .certificationService(new CertificationService(new FakeMailSender()))
+                .uuidHolder(new TestUuidHolder("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab"))
+                .clockHolder(new TestClockHolder(1678530673958L))
+                .build();
+    }
 
     @Test
     void getByEmail은_ACTIVE_상태인_유저를_찾아올_수_있다() {
@@ -62,7 +82,7 @@ class UserServiceTest {
     void getById은_ACTIVE_상태인_유저를_찾아올_수_있다() {
         //given
         //when
-        com.example.demo.user.domain.User result = userService.getById(1L);
+        User result = userService.getById(1L);
 
         //then
         assertThat(result.getNickname()).isEqualTo("hyun");
@@ -86,15 +106,13 @@ class UserServiceTest {
                 .nickname("hello")
                 .build();
 
-        BDDMockito.doNothing().when(mailSender).send(any(SimpleMailMessage.class));
-
         //when
         User result = userService.create(userCreate);
 
         //then
         assertThat(result.getId()).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(UserStatus.PENDING);
-//        assertThat(result.getCertificationCode()).isEqualTo("tba"); // FixMe
+        assertThat(result.getStatus()).isEqualTo(PENDING);
+        assertThat(result.getCertificationCode()).isEqualTo("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaab");
     }
 
     @Test
@@ -123,8 +141,7 @@ class UserServiceTest {
 
         //then
         User result = userService.getById(1L);
-        assertThat(result.getLastLoginAt()).isGreaterThan(0L);
-//        assertThat(result.getLastLoginAt()).isEqualTo("T.T"); // FixMe
+        assertThat(result.getLastLoginAt()).isEqualTo(1678530673958L); // FixMe
     }
 
     @Test
@@ -135,7 +152,7 @@ class UserServiceTest {
 
         //then
         User result = userService.getById(2L);
-        assertThat(result.getStatus()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(result.getStatus()).isEqualTo(ACTIVE);
     }
 
     @Test
