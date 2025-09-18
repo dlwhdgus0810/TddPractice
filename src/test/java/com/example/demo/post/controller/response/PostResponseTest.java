@@ -1,6 +1,7 @@
 package com.example.demo.post.controller.response;
 
 import com.example.demo.post.domain.Post;
+import com.example.demo.user.controller.response.UserResponse;
 import com.example.demo.user.domain.User;
 import com.example.demo.user.domain.UserStatus;
 import org.junit.jupiter.api.Test;
@@ -30,11 +31,12 @@ public class PostResponseTest {
 
         //when
         PostResponse postResponse = PostResponse.from(post);
+        UserResponse userResponse = postResponse.getWriter();
 
         //then
         assertThat(postResponse.getContent()).isEqualTo(post.content());
-        assertThat(postResponse.getWriter().getEmail()).isEqualTo("hyunlee.289@gmail.com");
-        assertThat(postResponse.getWriter().getStatus()).isEqualTo(UserStatus.ACTIVE);
-        assertThat(postResponse.getWriter()).isEqualTo(writer);
+        assertThat(userResponse.getEmail()).isEqualTo("hyunlee.289@gmail.com");
+        assertThat(userResponse.getStatus()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(userResponse.getNickname()).isEqualTo("hyun");
     }
 }
