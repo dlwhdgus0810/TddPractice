@@ -22,7 +22,7 @@ public class PostService {
     }
 
     public Post createPost(PostCreate postCreate) {
-        User user = userService.getById(postCreate.getWriterId());
+        User user = userService.getById(postCreate.writerId());
         Post post = Post.from(user, postCreate);
         return postRepository.save(post);
     }

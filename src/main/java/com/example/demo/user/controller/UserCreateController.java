@@ -2,7 +2,7 @@ package com.example.demo.user.controller;
 
 import com.example.demo.user.controller.response.UserResponse;
 import com.example.demo.user.domain.User;
-import com.example.demo.user.domain.UserCreateDto;
+import com.example.demo.user.domain.UserCreate;
 import com.example.demo.user.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +23,8 @@ public class UserCreateController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserCreateDto userCreateDto) {
-        User user = userService.create(userCreateDto);
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserCreate userCreate) {
+        User user = userService.create(userCreate);
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(UserResponse.from(user));

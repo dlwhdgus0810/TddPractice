@@ -5,8 +5,8 @@ import com.example.demo.user.controller.response.UserResponse;
 import lombok.Builder;
 import lombok.Getter;
 
-@Getter
 @Builder
+@Getter
 public class PostResponse {
 
     private Long id;

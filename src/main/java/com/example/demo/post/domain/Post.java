@@ -12,7 +12,7 @@ public record Post(Long id, String content, Long createdAt, Long modifiedAt, Use
     public static Post from(User writer, PostCreate postCreate) {
         return Post.builder()
                 .writer(writer)
-                .content(postCreate.getContent())
+                .content(postCreate.content())
                 .createdAt(Clock.systemUTC().millis())
                 .build();
     }

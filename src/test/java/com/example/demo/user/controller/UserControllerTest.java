@@ -1,7 +1,7 @@
 package com.example.demo.user.controller;
 
 import com.example.demo.user.domain.UserStatus;
-import com.example.demo.user.domain.UserUpdateDto;
+import com.example.demo.user.domain.UserUpdate;
 import com.example.demo.user.infrastructure.UserEntity;
 import com.example.demo.user.infrastructure.UserJpaRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -92,7 +92,7 @@ public class UserControllerTest {
     @Test
     void 사용자는_내_정보를_수정할_수_있다() throws Exception {
         //given
-        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+        UserUpdate userUpdate = UserUpdate.builder()
                 .nickname("jonghyun")
                 .address("deokso")
                 .build();
@@ -103,7 +103,7 @@ public class UserControllerTest {
                         put("/api/users/me")
                                 .header("EMAIL", "hyunlee.289@gmail.com")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(userUpdateDto)))
+                                .content(objectMapper.writeValueAsString(userUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.email").value("hyunlee.289@gmail.com"))
