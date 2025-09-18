@@ -19,7 +19,8 @@ class HealthCheckControllerTest {
 
     @Test
     void 헬스_체크_응답이_200으로_내려온다() throws Exception {
-        mockMvc.perform(get("/health_check.html")).andExpect(status().isOk());
+        mockMvc.perform(get("/health_check.html"))
+                .andExpect(status().isOk());
     }
 
 }
